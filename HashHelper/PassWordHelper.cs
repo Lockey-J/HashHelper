@@ -266,11 +266,6 @@ namespace HashHelper
 
         }
 
-        private static byte[] FormatByte(this string strVal, Encoding encoding)
-        {
-            return encoding.GetBytes(strVal);
-        }
-
         /// <summary>
         /// HashAlgorithm 加密统一方法
         /// </summary>
