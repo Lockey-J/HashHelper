@@ -55,7 +55,7 @@ namespace HashHelper
                 byte[] buffer = mEncoding.GetBytes(source);
                 byte[] resultBuff = desEncrypt.TransformFinalBlock(buffer, 0, buffer.Length);
                 des.Clear();
-                return resultBuff.Bytes2Str();
+                return Convert.ToBase64String(resultBuff);
             }
             catch (Exception e)
             {
