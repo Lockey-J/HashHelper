@@ -18,30 +18,33 @@ namespace HashHelper
         /// <returns>返回Base64密文</returns>
         public static string EncryptRsa(string Source, HashItem RsaItem)
         {
-            RSACryptoServiceProvider mRsa = new RSACryptoServiceProvider();
-            Encoding mEncoding = RsaItem.HashEncoding;
-            if (!string.IsNullOrWhiteSpace(RsaItem.PublicRsaKey))
+            using (RSACryptoServiceProvider mRsa = new RSACryptoServiceProvider())
             {
-                mRsa.FromXmlString(RsaItem.PublicRsaKey);
-            }
-            else if (!string.IsNullOrWhiteSpace(RsaItem.RsaModulus))
-            {
-                byte[] Rsa_N = RsaItem.RsaModulus.Str2Bytes();
-                byte[] Rsa_E = RsaItem.RsaExponent.PadLeft(6, '0').Str2Bytes();
-                RSAParameters mRSAParameters = new RSAParameters
+                Encoding mEncoding = RsaItem.HashEncoding;
+                if (!string.IsNullOrWhiteSpace(RsaItem.PublicRsaKey))
                 {
-                    Modulus = Rsa_N,
-                    Exponent = Rsa_E
-                };
-                mRsa.ImportParameters(mRSAParameters);
-            }
-            else
-            {
-                return Source;
+                    mRsa.FromXmlString(RsaItem.PublicRsaKey);
+                }
+                else if (!string.IsNullOrWhiteSpace(RsaItem.RsaModulus))
+                {
+                    byte[] Rsa_N = RsaItem.RsaModulus.Str2Bytes();
+                    byte[] Rsa_E = RsaItem.RsaExponent.PadLeft(6, '0').Str2Bytes();
+                    RSAParameters mRSAParameters = new RSAParameters
+                    {
+                        Modulus = Rsa_N,
+                        Exponent = Rsa_E
+                    };
+                    mRsa.ImportParameters(mRSAParameters);
+                }
+                else
+                {
+                    return Source;
+                }
+
+                byte[] cipherbytes = mRsa.Encrypt(mEncoding.GetBytes(Source), false);
+                return Convert.ToBase64String(cipherbytes);
             }
 
-            byte[] cipherbytes = mRsa.Encrypt(mEncoding.GetBytes(Source), false);
-            return Convert.ToBase64String(cipherbytes);
         }
 
 
@@ -53,29 +56,32 @@ namespace HashHelper
         /// <returns>返回解密后文本</returns>
         public static string DecryptRsa(string Source, HashItem RsaItem)
         {
-            RSACryptoServiceProvider mRsa = new RSACryptoServiceProvider();
-            Encoding mEncoding = RsaItem.HashEncoding;
-            if (!string.IsNullOrWhiteSpace(RsaItem.PublicRsaKey))
+            using (RSACryptoServiceProvider mRsa = new RSACryptoServiceProvider())
             {
-                mRsa.FromXmlString(RsaItem.PublicRsaKey);
-            }
-            else if (!string.IsNullOrWhiteSpace(RsaItem.RsaModulus))
-            {
-                byte[] Rsa_N = RsaItem.RsaModulus.Str2Bytes();
-                byte[] Rsa_E = RsaItem.RsaExponent.PadLeft(6, '0').Str2Bytes();
-                RSAParameters mRSAParameters = new RSAParameters
+                Encoding mEncoding = RsaItem.HashEncoding;
+                if (!string.IsNullOrWhiteSpace(RsaItem.PublicRsaKey))
                 {
-                    Modulus = Rsa_N,
-                    Exponent = Rsa_E
-                };
-                mRsa.ImportParameters(mRSAParameters);
+                    mRsa.FromXmlString(RsaItem.PublicRsaKey);
+                }
+                else if (!string.IsNullOrWhiteSpace(RsaItem.RsaModulus))
+                {
+                    byte[] Rsa_N = RsaItem.RsaModulus.Str2Bytes();
+                    byte[] Rsa_E = RsaItem.RsaExponent.PadLeft(6, '0').Str2Bytes();
+                    RSAParameters mRSAParameters = new RSAParameters
+                    {
+                        Modulus = Rsa_N,
+                        Exponent = Rsa_E
+                    };
+                    mRsa.ImportParameters(mRSAParameters);
+                }
+                else
+                {
+                    return Source;
+                }
+                var cipherbytes = mRsa.Decrypt(Convert.FromBase64String(Source), false);
+                return mEncoding.GetString(cipherbytes);
             }
-            else
-            {
-                return Source;
-            }
-            var cipherbytes = mRsa.Decrypt(Convert.FromBase64String(Source), false);
-            return mEncoding.GetString(cipherbytes);
+
         }
     }
     #endregion

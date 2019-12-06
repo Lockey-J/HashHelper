@@ -23,9 +23,11 @@ namespace HashHelper
             {
                 return string.Empty;
             }
-            Encoding mEncoding = Encoding.UTF8;
-            MD5 mMD5 = MD5.Create();
-            return HashAlgorithmBase(mMD5, source, mEncoding);
+            using (MD5 mMD5 = MD5.Create())
+            {
+                return HashAlgorithmBase(mMD5, source, Encoding.UTF8);
+            }
+                
         }
 
         /// <summary>
@@ -52,9 +54,11 @@ namespace HashHelper
             {
                 return null;
             }
-            var mEncoding = Encoding.UTF8;
-            SHA1 mSHA1 = new SHA1CryptoServiceProvider();
-            return HashAlgorithmBase(mSHA1, source, mEncoding);
+
+            using (SHA1 mSHA1 = new SHA1CryptoServiceProvider())
+            {
+                return HashAlgorithmBase(mSHA1, source, Encoding.UTF8);
+            }                
         }
 
         /// <summary>
@@ -66,9 +70,12 @@ namespace HashHelper
             {
                 return null;
             }
-            var mEncoding = Encoding.UTF8;
-            SHA256 mSHA256 = new SHA256Managed();
-            return HashAlgorithmBase(mSHA256, source, mEncoding);
+
+            using (SHA256 mSHA256 = new SHA256Managed())
+            {
+                return HashAlgorithmBase(mSHA256, source, Encoding.UTF8);
+            }
+               
         }
 
         /// <summary>
@@ -79,10 +86,12 @@ namespace HashHelper
             if (string.IsNullOrEmpty(source))
             {
                 return null;
-            }
-            var mEncoding = Encoding.UTF8;
-            SHA384 mSHA384 = new SHA384Managed();
-            return HashAlgorithmBase(mSHA384, source, mEncoding);
+            }        
+
+            using (SHA384 mSHA384 = new SHA384Managed())
+            {
+                return HashAlgorithmBase(mSHA384, source, Encoding.UTF8);
+            }                
         }
 
         /// <summary>
@@ -94,9 +103,11 @@ namespace HashHelper
             {
                 return null;
             }
-            var mEncoding = Encoding.UTF8;
-            SHA512 mSHA512 = new SHA512Managed();
-            return HashAlgorithmBase(mSHA512, source, mEncoding);
+
+            using (SHA512 mSHA512 = new SHA512Managed())
+            {
+                return HashAlgorithmBase(mSHA512, source, Encoding.UTF8);
+            }                
         }
 
 
@@ -115,9 +126,10 @@ namespace HashHelper
             }
             var mEncoding = Encoding.UTF8;
             byte[] keyStr = mEncoding.GetBytes(keyVal);
-            HMACSHA1 mHMACSHA1 = new HMACSHA1(keyStr);
-
-            return HashAlgorithmBase(mHMACSHA1, source, mEncoding);
+            using (HMACSHA1 mHMACSHA1 = new HMACSHA1(keyStr))
+            {
+                return HashAlgorithmBase(mHMACSHA1, source, Encoding.UTF8);
+            }
         }
 
         /// <summary>
@@ -129,10 +141,12 @@ namespace HashHelper
             {
                 return null;
             }
-            Encoding mEncoding = Encoding.UTF8;
+         
             byte[] keyStr = Encoding.UTF8.GetBytes(keyVal);
-            HMACSHA256 mHMACSHA256 = new HMACSHA256(keyStr);
-            return HashAlgorithmBase(mHMACSHA256, source, mEncoding);
+            using (HMACSHA256 mHMACSHA256 = new HMACSHA256(keyStr))
+            {
+                return HashAlgorithmBase(mHMACSHA256, source, Encoding.UTF8);
+            }
         }
 
         /// <summary>
@@ -144,11 +158,14 @@ namespace HashHelper
             {
                 return null;
             }
-            Encoding mEncoding = Encoding.Default;
+            Encoding mEncoding = Encoding.UTF8;
             byte[] keyStr = mEncoding.GetBytes(keyVal);
-            HMACSHA384 hmacSha384_m = new HMACSHA384(keyStr);
-            byte[] mmm = hmacSha384_m.ComputeHash(mEncoding.GetBytes(source));
-            return BitConverter.ToString(mmm).Replace("-", "");
+            using (HMACSHA384 hmacSha384_m = new HMACSHA384(keyStr))
+            {
+                byte[] mmm = hmacSha384_m.ComputeHash(mEncoding.GetBytes(source));
+                return BitConverter.ToString(mmm).Replace("-", "");
+            }
+                
             //Return HashAlgorithmBase(hmacSha384_m, source, mEncoding)
         }
 
@@ -163,8 +180,11 @@ namespace HashHelper
             }
             var mEncoding = Encoding.UTF8;
             byte[] keyStr = mEncoding.GetBytes(keyVal);
-            HMACSHA512 hmacSha512_m = new HMACSHA512(keyStr);
-            return HashAlgorithmBase(hmacSha512_m, source, mEncoding);
+            using (HMACSHA512 hmacSha512_m = new HMACSHA512(keyStr))
+            {
+                return HashAlgorithmBase(hmacSha512_m, source, Encoding.UTF8);
+            }
+               
         }
 
         /// <summary>
@@ -178,8 +198,11 @@ namespace HashHelper
             }
             var mEncoding = Encoding.UTF8;
             byte[] keyStr = mEncoding.GetBytes(keyVal);
-            HMACMD5 hmacMd5_m = new HMACMD5(keyStr);
-            return HashAlgorithmBase(hmacMd5_m, source, mEncoding);
+            using (HMACMD5 hmacMd5_m = new HMACMD5(keyStr))
+            {
+                return HashAlgorithmBase(hmacMd5_m, source, Encoding.UTF8);
+            }
+               
         }
         public static string HmacMd5(this string source, byte[] keyVal)
         {
@@ -187,10 +210,12 @@ namespace HashHelper
             {
                 return null;
             }
-            var mEncoding = Encoding.UTF8;
+            
             //Dim keyStr As Byte() = mEncoding.GetBytes(keyVal)
-            HMACMD5 hmacMd5_m = new HMACMD5(keyVal);
-            return HashAlgorithmBase(hmacMd5_m, source, mEncoding);
+            using (HMACMD5 hmacMd5_m = new HMACMD5(keyVal))
+            {
+                return HashAlgorithmBase(hmacMd5_m, source, Encoding.UTF8);
+            }                
         }
         /// <summary>
         /// HmacRipeMd160 加密
@@ -203,8 +228,11 @@ namespace HashHelper
             }
             var mEncoding = Encoding.UTF8;
             byte[] keyStr = mEncoding.GetBytes(keyVal);
-            HMACRIPEMD160 hmacRipeMd160_m = new HMACRIPEMD160(keyStr);
-            return HashAlgorithmBase(hmacRipeMd160_m, source, mEncoding);
+            using (HMACRIPEMD160 hmacRipeMd160_m = new HMACRIPEMD160(keyStr))
+            {
+                return HashAlgorithmBase(hmacRipeMd160_m, source, Encoding.UTF8);
+            }
+                
         }
 
         #endregion

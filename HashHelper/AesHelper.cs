@@ -39,17 +39,16 @@ namespace HashHelper
         public static string AESEncrypt(string SourceData, string Key, string Iv, CipherMode AesMode, Encoding mEncoding, PaddingMode mPaddingMode, int mKeySzie)
         {
             MemoryStream mStream = new MemoryStream();
-            RijndaelManaged AES = new RijndaelManaged();
-
             byte[] plainBytes = mEncoding.GetBytes(SourceData);
             byte[] bKey = new byte[32];
             Array.Copy(mEncoding.GetBytes(Key.PadRight(bKey.Length, '0')), bKey, bKey.Length);
-
-            AES.Mode = AesMode;
-            AES.Padding = mPaddingMode;
-            AES.KeySize = mKeySzie;
-
-            AES.Key = bKey;
+            RijndaelManaged AES = new RijndaelManaged
+            {
+                Mode = AesMode,
+                Padding = mPaddingMode,
+                KeySize = mKeySzie,
+                Key = bKey
+            };
             if (AesMode == CipherMode.CBC)
             {
                 byte[] bIv = new byte[16];
@@ -71,8 +70,8 @@ namespace HashHelper
             finally
             {
                 cryptoStream.Close();
-                mStream.Close();
-                AES.Clear();
+                mStream.Close();                
+                AES.Dispose();
             }
         }
         #endregion
@@ -133,7 +132,7 @@ namespace HashHelper
             {
                 cryptoStream.Close();
                 mStream.Close();
-                AES.Clear();
+                AES.Dispose();
             }
         }
         #endregion

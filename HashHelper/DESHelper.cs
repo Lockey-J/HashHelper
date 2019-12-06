@@ -22,10 +22,8 @@ namespace HashHelper
         /// <returns></returns>
         public static string EncryptDes(string source, HashItem mHashItem)
         {
-            byte[] mKey = null;
-            byte[] mIV = null;
-            mKey = mHashItem.HashEncoding.GetBytes(mHashItem.HashKey);
-            mIV = mHashItem.HashEncoding.GetBytes(mHashItem.HashIV);
+            byte[] mKey = mHashItem.HashEncoding.GetBytes(mHashItem.HashKey);
+            byte[] mIV = mHashItem.HashEncoding.GetBytes(mHashItem.HashIV);
             return EncryptDes(source, mKey, mIV, mHashItem.HashMode, mHashItem.HashEncoding, mHashItem.HashPadding);
         }
 
@@ -41,21 +39,23 @@ namespace HashHelper
         {
             try
             {
-                DESCryptoServiceProvider des = new DESCryptoServiceProvider()
+                using (DESCryptoServiceProvider des = new DESCryptoServiceProvider()
                 {
                     Key = aBKey,
                     Mode = mode,
                     Padding = Padding
-                };
-                if (mode == CipherMode.CBC)
+                })
                 {
-                    des.IV = Iv;
-                }
-                ICryptoTransform desEncrypt = des.CreateEncryptor();
-                byte[] buffer = mEncoding.GetBytes(source);
-                byte[] resultBuff = desEncrypt.TransformFinalBlock(buffer, 0, buffer.Length);
-                des.Clear();
-                return Convert.ToBase64String(resultBuff);
+                    if (mode == CipherMode.CBC)
+                    {
+                        des.IV = Iv;
+                    }
+                    ICryptoTransform desEncrypt = des.CreateEncryptor();
+                    byte[] buffer = mEncoding.GetBytes(source);
+                    byte[] resultBuff = desEncrypt.TransformFinalBlock(buffer, 0, buffer.Length);
+                    des.Clear();
+                    return Convert.ToBase64String(resultBuff);
+                }               
             }
             catch (Exception e)
             {
@@ -72,10 +72,8 @@ namespace HashHelper
         /// <returns></returns>
         public static string DecryptDes(string source, HashItem mHashItem)
         {
-            byte[] mKey = null;
-            byte[] mIV = null;
-            mKey = mHashItem.HashEncoding.GetBytes(mHashItem.HashKey);
-            mIV = mHashItem.HashEncoding.GetBytes(mHashItem.HashIV);
+            byte[] mKey = mHashItem.HashEncoding.GetBytes(mHashItem.HashKey);
+            byte[] mIV = mHashItem.HashEncoding.GetBytes(mHashItem.HashIV);
             return DecryptDes(source, mKey, mIV, mHashItem.HashMode, mHashItem.HashEncoding, mHashItem.HashPadding);
         }
         /// <summary>
@@ -91,21 +89,24 @@ namespace HashHelper
 
             try
             {
-                DESCryptoServiceProvider des = new DESCryptoServiceProvider()
+                using (DESCryptoServiceProvider des = new DESCryptoServiceProvider()
                 {
                     Key = aBKey,
                     Mode = mode,
                     Padding = Padding
-                };
-                if (mode == CipherMode.CBC)
+                })
                 {
-                    des.IV = Iv;
+                    if (mode == CipherMode.CBC)
+                    {
+                        des.IV = Iv;
+                    }
+                    ICryptoTransform desDecrypt = des.CreateDecryptor();
+                    string result = string.Empty;
+                    byte[] buffer = Convert.FromBase64String(source);
+                    result = mEncoding.GetString(desDecrypt.TransformFinalBlock(buffer, 0, buffer.Length));
+                    return result;
                 }
-                ICryptoTransform desDecrypt = des.CreateDecryptor();
-                string result = string.Empty;
-                byte[] buffer = Convert.FromBase64String(source);
-                result = mEncoding.GetString(desDecrypt.TransformFinalBlock(buffer, 0, buffer.Length));
-                return result;
+
             }
             catch (Exception e)
             {
@@ -124,10 +125,8 @@ namespace HashHelper
         /// <returns></returns>
         public static string Encrypt3Des(string aStrString, HashItem mHashItem)
         {
-            byte[] mKey = null;
-            byte[] mIV = null;
-            mKey = mHashItem.HashEncoding.GetBytes(mHashItem.HashKey);
-            mIV = mHashItem.HashEncoding.GetBytes(mHashItem.HashIV);
+            byte[] mKey = mHashItem.HashEncoding.GetBytes(mHashItem.HashKey);
+            byte[] mIV = mHashItem.HashEncoding.GetBytes(mHashItem.HashIV);
             return Encrypt3Des(aStrString, mKey, mIV, mHashItem.HashMode, mHashItem.HashEncoding, mHashItem.HashPadding);
         }
         /// <summary>
@@ -142,19 +141,22 @@ namespace HashHelper
         {
             try
             {
-                TripleDESCryptoServiceProvider des = new TripleDESCryptoServiceProvider()
+                using (TripleDESCryptoServiceProvider des = new TripleDESCryptoServiceProvider()
                 {
                     Key = aStrKey,
                     Mode = mode,
                     Padding = Padding
-                };
-                if (mode == CipherMode.CBC)
+                })
                 {
-                    des.IV = iv;
+                    if (mode == CipherMode.CBC)
+                    {
+                        des.IV = iv;
+                    }
+                    ICryptoTransform desEncrypt = des.CreateEncryptor();
+                    byte[] buffer = mEncoding.GetBytes(aStrString);
+                    return Convert.ToBase64String(desEncrypt.TransformFinalBlock(buffer, 0, buffer.Length));
                 }
-                ICryptoTransform desEncrypt = des.CreateEncryptor();
-                byte[] buffer = mEncoding.GetBytes(aStrString);
-                return Convert.ToBase64String(desEncrypt.TransformFinalBlock(buffer, 0, buffer.Length));
+
             }
             catch (Exception e)
             {
@@ -171,10 +173,8 @@ namespace HashHelper
         /// <returns></returns>
         public static string Decrypt3Des(string aStrString, HashItem mHashItem)
         {
-            byte[] mKey = null;
-            byte[] mIV = null;
-            mKey = mHashItem.HashEncoding.GetBytes(mHashItem.HashKey);
-            mIV = mHashItem.HashEncoding.GetBytes(mHashItem.HashIV);
+            byte[] mKey = mHashItem.HashEncoding.GetBytes(mHashItem.HashKey);
+            byte[] mIV = mHashItem.HashEncoding.GetBytes(mHashItem.HashIV);
             return Decrypt3Des(aStrString, mKey, mIV, mHashItem.HashMode, mHashItem.HashEncoding, mHashItem.HashPadding);
         }
 
@@ -190,21 +190,23 @@ namespace HashHelper
         {
             try
             {
-                TripleDESCryptoServiceProvider des = new TripleDESCryptoServiceProvider()
+                using (TripleDESCryptoServiceProvider des = new TripleDESCryptoServiceProvider()
                 {
                     Key = aStrKey,
                     Mode = mode,
                     Padding = Padding
-                };
-                if (mode == CipherMode.CBC)
+                })
                 {
-                    des.IV = iv;
+                    if (mode == CipherMode.CBC)
+                    {
+                        des.IV = iv;
+                    }
+                    ICryptoTransform desDecrypt = des.CreateDecryptor();
+                    string result = string.Empty;
+                    byte[] buffer = Convert.FromBase64String(aStrString);
+                    result = mEncoding.GetString(desDecrypt.TransformFinalBlock(buffer, 0, buffer.Length));
+                    return result;
                 }
-                ICryptoTransform desDecrypt = des.CreateDecryptor();
-                string result = string.Empty;
-                byte[] buffer = Convert.FromBase64String(aStrString);
-                result = mEncoding.GetString(desDecrypt.TransformFinalBlock(buffer, 0, buffer.Length));
-                return result;
             }
             catch (Exception e)
             {
@@ -217,3 +219,4 @@ namespace HashHelper
     #endregion
 
 }
+
