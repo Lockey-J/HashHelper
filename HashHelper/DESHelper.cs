@@ -22,23 +22,33 @@ namespace HashHelper
         /// <returns></returns>
         public static string EncryptDes(string source, HashItem mHashItem)
         {
+            if (string.IsNullOrWhiteSpace(source))
+            {
+                return string.Empty;
+            }
             byte[] mKey = mHashItem.HashEncoding.GetBytes(mHashItem.HashKey);
             byte[] mIV = mHashItem.HashEncoding.GetBytes(mHashItem.HashIV);
-            return EncryptDes(source, mKey, mIV, mHashItem.HashMode, mHashItem.HashEncoding, mHashItem.HashPadding);
+            byte[] buffer = mHashItem.HashEncoding.GetBytes(source);
+
+            return Convert.ToBase64String(EncryptDes(buffer, mKey, mIV, mHashItem.HashMode,  mHashItem.HashPadding));
         }
+
 
         /// <summary>
         /// DES加密
         /// </summary>
-        /// <param name="source"></param>
-        /// <param name="aBKey"></param>
-        /// <param name="mode"></param>
-        /// <param name="iv"></param>
+        /// <param name="source">待加密数组</param>
+        /// <param name="aBKey">密钥</param>
+        /// <param name="Iv">向量</param>
+        /// <param name="mode">加密模式</param>
+        /// <param name="Padding">填充模式</param>
         /// <returns></returns>
-        public static string EncryptDes(string source, byte[] aBKey, byte[] Iv, CipherMode mode, Encoding mEncoding, PaddingMode Padding)
+        public static byte[] EncryptDes(byte[] source, byte[] aBKey, byte[] Iv, CipherMode mode,  PaddingMode Padding)
         {
             try
             {
+                if (source == null)
+                    return null;
                 using (DESCryptoServiceProvider des = new DESCryptoServiceProvider()
                 {
                     Key = aBKey,
@@ -46,20 +56,19 @@ namespace HashHelper
                     Padding = Padding
                 })
                 {
-                    if (mode == CipherMode.CBC)
+                    if (mode != CipherMode.ECB)
                     {
                         des.IV = Iv;
                     }
-                    ICryptoTransform desEncrypt = des.CreateEncryptor();
-                    byte[] buffer = mEncoding.GetBytes(source);
-                    byte[] resultBuff = desEncrypt.TransformFinalBlock(buffer, 0, buffer.Length);
+                    ICryptoTransform desEncrypt = des.CreateEncryptor();                    
+                    byte[] resultBuff = desEncrypt.TransformFinalBlock(source, 0, source.Length);
                     des.Clear();
-                    return Convert.ToBase64String(resultBuff);
-                }               
+                    return resultBuff;
+                }
             }
             catch (Exception e)
             {
-                return e.Message;
+                throw new Exception(e.Message);
             }
         }
 
@@ -72,19 +81,18 @@ namespace HashHelper
         /// <returns></returns>
         public static string DecryptDes(string source, HashItem mHashItem)
         {
+            if (string.IsNullOrWhiteSpace(source))
+            {
+                return string.Empty;
+            }
+            byte[] buffer = Convert.FromBase64String(source);
             byte[] mKey = mHashItem.HashEncoding.GetBytes(mHashItem.HashKey);
             byte[] mIV = mHashItem.HashEncoding.GetBytes(mHashItem.HashIV);
-            return DecryptDes(source, mKey, mIV, mHashItem.HashMode, mHashItem.HashEncoding, mHashItem.HashPadding);
+            return mHashItem.HashEncoding.GetString(DecryptDes(buffer, mKey, mIV, mHashItem.HashMode,  mHashItem.HashPadding));
         }
-        /// <summary>
-        /// DES解密默认UTF8编码
-        /// </summary>
-        /// <param name="source"></param>
-        /// <param name="aBKey"></param>
-        /// <param name="mode"></param>
-        /// <param name="iv"></param>
-        /// <returns></returns>
-        public static string DecryptDes(string source, byte[] aBKey, byte[] Iv, CipherMode mode, Encoding mEncoding, PaddingMode Padding)
+     
+
+        public static byte[] DecryptDes(byte[] source, byte[] aBKey, byte[] Iv, CipherMode mode,  PaddingMode Padding)
         {
 
             try
@@ -96,21 +104,18 @@ namespace HashHelper
                     Padding = Padding
                 })
                 {
-                    if (mode == CipherMode.CBC)
+                    if (mode != CipherMode.ECB)
                     {
                         des.IV = Iv;
                     }
                     ICryptoTransform desDecrypt = des.CreateDecryptor();
-                    string result = string.Empty;
-                    byte[] buffer = Convert.FromBase64String(source);
-                    result = mEncoding.GetString(desDecrypt.TransformFinalBlock(buffer, 0, buffer.Length));
-                    return result;
+                    return desDecrypt.TransformFinalBlock(source, 0, source.Length);
                 }
 
             }
             catch (Exception e)
             {
-                return e.Message;
+               throw new Exception(e.Message);
             }
         }
 
@@ -123,21 +128,26 @@ namespace HashHelper
         /// <param name="aStrString">待加密的字符串</param>
         /// <param name="mHashItem">HashItem加密参数类</param>
         /// <returns></returns>
-        public static string Encrypt3Des(string aStrString, HashItem mHashItem)
+        public static string Encrypt3Des(string source, HashItem mHashItem)
         {
+            if (string.IsNullOrWhiteSpace(source))
+            {
+                return string.Empty;
+            }
+            byte[] buffer = mHashItem.HashEncoding.GetBytes(source);
             byte[] mKey = mHashItem.HashEncoding.GetBytes(mHashItem.HashKey);
             byte[] mIV = mHashItem.HashEncoding.GetBytes(mHashItem.HashIV);
-            return Encrypt3Des(aStrString, mKey, mIV, mHashItem.HashMode, mHashItem.HashEncoding, mHashItem.HashPadding);
+            return Convert.ToBase64String(Encrypt3Des(buffer, mKey, mIV, mHashItem.HashMode,  mHashItem.HashPadding));
         }
         /// <summary>
         /// 3DES加密
         /// </summary>
-        /// <param name="aStrString">待加密文本</param>
+        /// <param name="source">待加密文本</param>
         /// <param name="aStrKey">密钥数组</param>
         /// <param name="mode">填充方式</param>
         /// <param name="iv">向量数组</param>
         /// <returns></returns>
-        public static string Encrypt3Des(string aStrString, byte[] aStrKey, byte[] iv, CipherMode mode, Encoding mEncoding, PaddingMode Padding)
+        public static byte[] Encrypt3Des(byte[] source, byte[] aStrKey, byte[] iv, CipherMode mode, PaddingMode Padding)
         {
             try
             {
@@ -148,19 +158,19 @@ namespace HashHelper
                     Padding = Padding
                 })
                 {
-                    if (mode == CipherMode.CBC)
+                    if (mode != CipherMode.ECB)
                     {
                         des.IV = iv;
                     }
                     ICryptoTransform desEncrypt = des.CreateEncryptor();
-                    byte[] buffer = mEncoding.GetBytes(aStrString);
-                    return Convert.ToBase64String(desEncrypt.TransformFinalBlock(buffer, 0, buffer.Length));
+                   
+                    return desEncrypt.TransformFinalBlock(source, 0, source.Length);
                 }
 
             }
             catch (Exception e)
             {
-                return e.Message;
+                throw new Exception(e.Message);
             }
         }
 
@@ -168,25 +178,30 @@ namespace HashHelper
         /// <summary>
         /// 3des解密
         /// </summary>
-        /// <param name="aStrString">待解密的字符串</param>
+        /// <param name="source">待解密的字符串</param>
         /// <param name="mHashItem">HashItem加密参数类</param>
         /// <returns></returns>
-        public static string Decrypt3Des(string aStrString, HashItem mHashItem)
+        public static string Decrypt3Des(string source, HashItem mHashItem)
         {
+            if (string.IsNullOrWhiteSpace(source))
+            {
+                return string.Empty;
+            }
+            byte[] buffer = Convert.FromBase64String(source);
             byte[] mKey = mHashItem.HashEncoding.GetBytes(mHashItem.HashKey);
             byte[] mIV = mHashItem.HashEncoding.GetBytes(mHashItem.HashIV);
-            return Decrypt3Des(aStrString, mKey, mIV, mHashItem.HashMode, mHashItem.HashEncoding, mHashItem.HashPadding);
+            return mHashItem.HashEncoding.GetString(Decrypt3Des(buffer, mKey, mIV, mHashItem.HashMode,  mHashItem.HashPadding));
         }
 
         /// <summary>
         /// 3des解密
         /// </summary>
-        /// <param name="aStrString">加密密文</param>
+        /// <param name="source">加密密文</param>
         /// <param name="aStrKey">密钥数组</param>
         /// <param name="mode">填充方式</param>
         /// <param name="iv">向量数组</param>
         /// <returns></returns>
-        public static string Decrypt3Des(string aStrString, byte[] aStrKey, byte[] iv, CipherMode mode, Encoding mEncoding, PaddingMode Padding)
+        public static byte[] Decrypt3Des(byte[] source, byte[] aStrKey, byte[] iv, CipherMode mode, PaddingMode Padding)
         {
             try
             {
@@ -197,20 +212,20 @@ namespace HashHelper
                     Padding = Padding
                 })
                 {
-                    if (mode == CipherMode.CBC)
+                    if (mode != CipherMode.ECB)
                     {
                         des.IV = iv;
                     }
                     ICryptoTransform desDecrypt = des.CreateDecryptor();
                     string result = string.Empty;
-                    byte[] buffer = Convert.FromBase64String(aStrString);
-                    result = mEncoding.GetString(desDecrypt.TransformFinalBlock(buffer, 0, buffer.Length));
-                    return result;
+                    
+                   
+                    return desDecrypt.TransformFinalBlock(source, 0, source.Length);
                 }
             }
             catch (Exception e)
             {
-                return e.Message;
+                throw new Exception(e.Message);
             }
         }
         #endregion
